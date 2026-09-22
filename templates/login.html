@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - Placar Natorcida</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f172a; color: #f8fafc; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: #1e293b; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); width: 100%; max-width: 400px; }
+        h2 { text-align: center; margin-bottom: 20px; color: #38bdf8; }
+        .tabs { display: flex; margin-bottom: 20px; border-bottom: 2px solid #334155; }
+        .tab { flex: 1; text-align: center; padding: 10px; cursor: pointer; font-weight: bold; color: #94a3b8; }
+        .tab.active { color: #38bdf8; border-bottom: 2px solid #38bdf8; margin-bottom: -2px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-size: 14px; color: #cbd5e1; }
+        input { width: 100%; padding: 10px; border: 1px solid #475569; border-radius: 6px; background: #0f172a; color: #fff; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #0284c7; border: none; border-radius: 6px; color: white; font-weight: bold; cursor: pointer; transition: background 0.2s; margin-top: 10px; }
+        button:hover { background: #0369a1; }
+        .flash { background: #ef4444; color: white; padding: 10px; border-radius: 6px; margin-bottom: 15px; font-size: 14px; text-align: center; }
+        .form-section { display: none; }
+        .form-section.active { display: block; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>Placar Natorcida</h2>
+
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <div class="flash">{{ messages[0] }}</div>
+          {% endif %}
+        {% endwith %}
+
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('login')">Entrar</div>
+            <div class="tab" onclick="switchTab('register')">Cadastrar</div>
+        </div>
+
+        <!-- Formulário de Login -->
+        <form id="form-login" class="form-section active" method="POST" action="/login">
+            <div class="form-group">
+                <label>Usuário</label>
+                <input type="text" name="username" required>
+            </div>
+            <div class="form-group">
+                <label>Senha</label>
+                <input type="password" name="password" required>
+            </div>
+            <button type="submit">Entrar no Painel</button>
+        </form>
+
+        <!-- Formulário de Cadastro -->
+        <form id="form-register" class="form-section" method="POST" action="/register">
+            <div class="form-group">
+                <label>Novo Usuário</label>
+                <input type="text" name="username" required>
+            </div>
+            <div class="form-group">
+                <label>Senha</label>
+                <input type="password" name="password" required>
+            </div>
+            <button type="submit" style="background: #16a34a;">Criar Conta</button>
+        </form>
+    </div>
+
+    <script>
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.form-section').forEach(f => f.classList.remove('active'));
+
+            if (tab === 'login') {
+                document.querySelectorAll('.tab')[0].classList.add('active');
+                document.getElementById('form-login').classList.add('active');
+            } else {
+                document.querySelectorAll('.tab')[1].classList.add('active');
+                document.getElementById('form-register').classList.add('active');
+            }
+        }
+    </script>
+</body>
+</html>
