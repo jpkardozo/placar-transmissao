@@ -1,9 +1,13 @@
 import os
 import threading
 import time
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, Response, jsonify, render_template, request
 
 app = Flask(__name__)
+
+# Defina aqui o usuário e a senha de acesso ao Painel de Controle
+ADMIN_USER = "admin"
+ADMIN_PASS = "natorcida2026"  # <--- Altere para a senha que você preferir
 
 # Estado inicial do jogo guardado na memória do servidor
 estado_jogo = {
@@ -18,6 +22,32 @@ estado_jogo = {
     "patrocinadores": ["Marca Patrocinadora 1", "Empresa Parceira 2"],
     "animar_gol": False,
 }
+
+
+# Função para verificar a senha (Autenticação Básica)
+def check_auth(username, password):
+    return username == ADMIN_USER and password == ADMIN_PASS
+
+
+def authenticate():
+    return Response(
+        "Acesso restrito! Por favor, faça login.",
+        401,
+        {"WWW-Authenticate": 'Basic realm="Login Necessario"'},
+    )
+
+
+def requires_auth(f):
+    from functools import wraps
+
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        auth = request.authorization
+        if not auth or not check_auth(auth.username, auth.password):
+            return authenticate()
+        return f(*args, **kwargs)
+
+    return decorated
 
 
 # Thread do Cronômetro Automático
@@ -39,11 +69,14 @@ t = threading.Thread(target=thread_cronometro, daemon=True)
 t.start()
 
 
+# Rota do Painel de Controle (Protegida por senha)
 @app.route("/")
+@requires_auth
 def controle():
     return render_template("controle.html")
 
 
+# Rota do OBS (Aberta para carregar direto no OBS Studio)
 @app.route("/obs")
 def obs():
     return render_template("placar.html")
@@ -83,6 +116,5 @@ def desativar_animacao():
 
 
 if __name__ == "__main__":
-    # O Render define automaticamente a porta pela variável de ambiente PORT
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
