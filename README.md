@@ -1,3 +1,4 @@
+cat << 'EOF' > README.md
 # 🏆 Placar Pro para Transmissões - Natorcida
 
 Um sistema de placar moderno, leve e em tempo real desenvolvido em **Python (Flask)**, criado sob medida para transmitir partidas e eventos esportivos com qualidade profissional (estilo TV). 
@@ -16,12 +17,12 @@ O sistema conta com um painel de controle web responsivo (para gerenciar por cel
 
 ---
 
-## 🔗 Links de Acesso (Exemplo)
+## 🔗 Links de Acesso
 
 * **🎛️ Painel de Controle (Gerenciamento):**  
-  [https://placartransmissao.onrender.com](https://placartransmissao.onrender.com)
+  https://placartransmissao.onrender.com
 * **📺 Overlay para a Live (OBS Studio):**  
-  [https://placartransmissao.onrender.com/obs](https://placartransmissao.onrender.com/obs)
+  https://placartransmissao.onrender.com/obs
 
 ---
 
@@ -40,8 +41,7 @@ Para exibir o placar transparente na sua transmissão, siga os passos abaixo:
 
 ---
 
-## 📄 Direitos Autorais
+## 📄 Licença
 
-Este projeto é proprietário e desenvolvido exclusivamente para as transmissões do **Natorcida**. 
-**Todos os direitos reservados © 2026.** 
-É proibida a cópia, modificação, distribuição ou uso comercial deste código sem autorização expressa do autor.
+Este projeto é distribuído sob a licença **MIT**. Sinta-se livre para usar, estudar e modificar conforme necessário.
+EOF
