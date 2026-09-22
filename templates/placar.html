@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            margin: 0;
+            background-color: transparent;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            color: white;
+        }
+        .placar-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 450px;
+            margin: 20px;
+            filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.5));
+            transition: transform 0.2s ease;
+        }
+        /* Efeito de animação quando sai gol */
+        .destaque-gol {
+            transform: scale(1.08);
+        }
+        .destaque-gol .placar {
+            background: #ff0055 !important;
+            color: #ffffff !important;
+        }
+        .main-board {
+            display: flex;
+            background: linear-gradient(135deg, #111b21, #1f2c34);
+            border: 2px solid #00a884;
+            border-radius: 8px;
+            overflow: hidden;
+            width: 100%;
+        }
+        .time {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 18px;
+            text-transform: uppercase;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .placar {
+            background: #0b141a;
+            padding: 10px 20px;
+            font-size: 24px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            color: #00ffcc;
+            display: flex;
+            align-items: center;
+            border-left: 2px solid #00a884;
+            border-right: 2px solid #00a884;
+            transition: background 0.3s, color 0.3s;
+        }
+        .info-bar {
+            display: flex;
+            justify-content: space-between;
+            background: #00a884;
+            color: #0b141a;
+            width: 100%;
+            font-weight: bold;
+            font-size: 13px;
+            padding: 4px 10px;
+            box-sizing: border-box;
+            border-bottom-left-radius: 6px;
+            border-bottom-right-radius: 6px;
+        }
+        .sponsor-bar {
+            margin-top: 5px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 4px 15px;
+            font-size: 11px;
+            border-radius: 4px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-align: center;
+            width: 100%;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+    <div class="placar-container" id="container-principal">
+        <div class="main-board">
+            <div class="time" id="lbl-casa">Casa</div>
+            <div class="placar"><span id="lbl-gols-casa">0</span> : <span id="lbl-gols-fora">0</span></div>
+            <div class="time" id="lbl-fora">Fora</div>
+        </div>
+        <div class="info-bar">
+            <span id="lbl-periodo">1º TEMPO</span>
+            <!-- Elemento do cronômetro adicionado aqui -->
+            <span id="lbl-tempo">00:00</span>
+        </div>
+        <div class="sponsor-bar" id="lbl-patrocinador">Patrocínio</div>
+    </div>
+
+    <script>
+        let listaPatrocinadores = [];
+        let indicePatrocinador = 0;
+
+        // Rotação visual de patrocinadores a cada 6 segundos no OBS
+        setInterval(() => {
+            if (listaPatrocinadores.length > 0) {
+                document.getElementById('lbl-patrocinador').innerText = "Patrocínio: " + listaPatrocinadores[indicePatrocinador];
+                indicePatrocinador = (indicePatrocinador + 1) % listaPatrocinadores.length;
+            }
+        }, 6000);
+
+        function atualizarPlacar() {
+            fetch('/api/estado')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('lbl-casa').innerText = data.time_casa;
+                    document.getElementById('lbl-fora').innerText = data.time_fora;
+                    document.getElementById('lbl-gols-casa').innerText = data.gols_casa;
+                    document.getElementById('lbl-gols-fora').innerText = data.gols_fora;
+
+                    // Formata tempo (MM:SS) e joga na tela do OBS
+                    let min = String(data.minutos).padStart(2, '0');
+                    let seg = String(data.segundos).padStart(2, '0');
+                    document.getElementById('lbl-tempo').innerText = min + ":" + seg;
+
+                    document.getElementById('lbl-periodo').innerText = data.periodo;
+
+                    // Atualiza lista de patrocinadores
+                    if (data.patrocinadores && data.patrocinadores.length > 0) {
+                        listaPatrocinadores = data.patrocinadores;
+                    }
+
+                    // Animação de Gol
+                    let container = document.getElementById('container-principal');
+                    if (data.animar_gol) {
+                        container.classList.add('destaque-gol');
+                        setTimeout(() => {
+                            fetch('/api/desativar_animacao', {method: 'POST'});
+                        }, 4000);
+                    } else {
+                        container.classList.remove('destaque-gol');
+                    }
+                });
+        }
+
+        // Atualiza a cada 1 segundo no OBS
+        setInterval(atualizarPlacar, 1000);
+        atualizarPlacar();
+    </script>
+</body>
+</html>

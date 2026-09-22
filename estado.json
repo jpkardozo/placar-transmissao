@@ -1,0 +1,16 @@
+{
+    "time_casa": "Sitio Chapeu",
+    "gols_casa": 0,
+    "time_fora": "Caiçara",
+    "gols_fora": 0,
+    "minutos": 35,
+    "segundos": 33,
+    "cronometro_rodando": true,
+    "periodo": "1º TEMPO",
+    "patrocinadores": [
+        "JM Tech  Automação Comercial",
+        "Linux Criativo",
+        "SociedadePinguim.com.br"
+    ],
+    "animar_gol": false
+}

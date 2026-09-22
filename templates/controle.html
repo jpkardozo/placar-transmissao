@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Painel de Controle - Placar Pro</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #121212; color: #fff; padding: 20px; max-width: 800px; margin: auto; }
+        .card { background: #1e1e1e; padding: 15px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #333; }
+        input, select { padding: 8px; margin: 5px 0; background: #2d2d2d; border: 1px solid #444; color: #fff; border-radius: 4px; width: 100%; box-sizing: border-box;}
+        button { padding: 10px 15px; background: #00a884; border: none; color: white; font-weight: bold; border-radius: 4px; cursor: pointer; margin-top: 5px; }
+        button:hover { background: #008f70; }
+        .btn-danger { background: #d9534f; }
+        .btn-danger:hover { background: #c9302c; }
+        .btn-warning { background: #f0ad4e; color: #333; }
+        .btn-warning:hover { background: #eea236; }
+        .row { display: flex; gap: 10px; }
+        .col { flex: 1; }
+        .atalhos-info { font-size: 12px; color: #aaa; margin-top: 5px; }
+    </style>
+</head>
+<body>
+    <h2>Painel de Controle Avançado do Placar</h2>
+
+    <div class="card">
+        <h3>⏱️ Cronômetro</h3>
+        <p style="font-size: 20px; font-weight: bold;" id="visor-cronometro">00:00</p>
+        <button onclick="controlarRelogio('iniciar')">Iniciar</button>
+        <button class="btn-warning" onclick="controlarRelogio('pausar')">Pausar</button>
+        <button class="btn-danger" onclick="controlarRelogio('zerar')">Zerar</button>
+    </div>
+
+    <div class="card">
+        <h3>⚽ Equipes e Placar <span class="atalhos-info">(Atalhos: [G] +Casa, [H] -Casa | [K] +Fora, [L] -Fora)</span></h3>
+        <div class="row">
+            <div class="col">
+                <label>Time Casa:</label>
+                <input type="text" id="time_casa">
+                <label>Gols Casa:</label>
+                <div class="row">
+                    <button class="btn-danger" onclick="mudarGol('gols_casa', -1)">-</button>
+                    <input type="number" id="gols_casa" style="text-align:center;">
+                    <button onclick="mudarGol('gols_casa', 1)">+</button>
+                </div>
+            </div>
+            <div class="col">
+                <label>Time Fora:</label>
+                <input type="text" id="time_fora">
+                <label>Gols Fora:</label>
+                <div class="row">
+                    <button class="btn-danger" onclick="mudarGol('gols_fora', -1)">-</button>
+                    <input type="number" id="gols_fora" style="text-align:center;">
+                    <button onclick="mudarGol('gols_fora', 1)">+</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>⚙️ Configurações da Partida</h3>
+        <label>Período:</label>
+        <select id="periodo">
+            <option value="1º TEMPO">1º TEMPO</option>
+            <option value="INTERVALO">INTERVALO</option>
+            <option value="2º TEMPO">2º TEMPO</option>
+            <option value="PRORROGAÇÃO">PRORROGAÇÃO</option>
+            <option value="PÊNALTIS">PÊNALTIS</option>
+            <option value="FINAL">FINAL</option>
+        </select>
+
+        <label>Patrocinadores (separe por vírgula):</label>
+        <input type="text" id="patrocinadores_txt" placeholder="Marca A, Empresa B, Loja C">
+    </div>
+
+    <button style="width: 100%; padding: 15px; font-size: 16px;" onclick="salvarDados()">Salvar Alterações</button>
+
+    <script>
+        // Carrega os dados do servidor APENAS quando a página é aberta
+        function carregarDadosIniciais() {
+            fetch('/api/estado').then(res => res.json()).then(data => {
+                document.getElementById('time_casa').value = data.time_casa || '';
+                document.getElementById('time_fora').value = data.time_fora || '';
+                document.getElementById('gols_casa').value = data.gols_casa ?? 0;
+                document.getElementById('gols_fora').value = data.gols_fora ?? 0;
+                document.getElementById('periodo').value = data.periodo || '1º TEMPO';
+
+                if(data.patrocinadores) {
+                    document.getElementById('patrocinadores_txt').value = data.patrocinadores.join(', ');
+                }
+            });
+        }
+
+        // Atualiza apenas o cronômetro na tela para não apagar o que você está digitando
+        function atualizarApenasRelogio() {
+            fetch('/api/estado').then(res => res.json()).then(data => {
+                let min = String(data.minutos).padStart(2, '0');
+                let seg = String(data.segundos).padStart(2, '0');
+                document.getElementById('visor-cronometro').innerText = min + ":" + seg;
+            });
+        }
+
+        function salvarDados() {
+            let textoPatrocinadores = document.getElementById('patrocinadores_txt').value;
+            let pats = textoPatrocinadores.split(',').map(s => s.trim()).filter(s => s.length > 0);
+
+            let dados = {
+                time_casa: document.getElementById('time_casa').value,
+                time_fora: document.getElementById('time_fora').value,
+                gols_casa: parseInt(document.getElementById('gols_casa').value) || 0,
+                gols_fora: parseInt(document.getElementById('gols_fora').value) || 0,
+                periodo: document.getElementById('periodo').value,
+                patrocinadores: pats
+            };
+
+            fetch('/api/atualizar', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(dados)
+            }).then(res => res.json()).then(data => {
+
+            });
+        }
+
+        function mudarGol(campo, valor) {
+            let input = document.getElementById(campo);
+            let atual = parseInt(input.value) || 0;
+            let novo = atual + valor;
+            if (novo < 0) novo = 0;
+            input.value = novo;
+            salvarDados();
+        }
+
+        function controlarRelogio(acao) {
+            let dados = {};
+            if (acao === 'iniciar') dados.cronometro_rodando = true;
+            if (acao === 'pausar') dados.cronometro_rodando = false;
+            if (acao === 'zerar') {
+                dados.cronometro_rodando = false;
+                dados.minutos = 0;
+                dados.segundos = 0;
+            }
+
+            fetch('/api/atualizar', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(dados)
+            }).then(() => atualizarApenasRelogio());
+        }
+
+        // Atalhos de teclado globais no painel
+        document.addEventListener('keydown', (e) => {
+            if (document.activeElement.tagName === 'INPUT') return;
+
+            if (e.key.toLowerCase() === 'g') mudarGol('gols_casa', 1);
+            if (e.key.toLowerCase() === 'h') mudarGol('gols_casa', -1);
+            if (e.key.toLowerCase() === 'k') mudarGol('gols_fora', 1);
+            if (e.key.toLowerCase() === 'l') mudarGol('gols_fora', -1);
+        });
+
+        // Inicialização
+        carregarDadosIniciais();
+        // Atualiza o relógio a cada 1 segundo em segundo plano
+        setInterval(atualizarApenasRelogio, 1000);
+    </script>
+</body>
+</html>
