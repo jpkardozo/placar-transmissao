@@ -23,7 +23,7 @@
 <body>
     <div class="card">
         <h2>Placar Natorcida</h2>
-
+        
         {% with messages = get_flashed_messages() %}
           {% if messages %}
             <div class="flash">{{ messages[0] }}</div>
@@ -66,7 +66,7 @@
         function switchTab(tab) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.form-section').forEach(f => f.classList.remove('active'));
-
+            
             if (tab === 'login') {
                 document.querySelectorAll('.tab')[0].classList.add('active');
                 document.getElementById('form-login').classList.add('active');

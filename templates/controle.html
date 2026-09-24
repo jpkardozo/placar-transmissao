@@ -2,164 +2,235 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Painel de Controle - Placar Pro</title>
+    <title>Painel de Controle - Placar Natorcida</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #121212; color: #fff; padding: 20px; max-width: 800px; margin: auto; }
-        .card { background: #1e1e1e; padding: 15px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #333; }
-        input, select { padding: 8px; margin: 5px 0; background: #2d2d2d; border: 1px solid #444; color: #fff; border-radius: 4px; width: 100%; box-sizing: border-box;}
-        button { padding: 10px 15px; background: #00a884; border: none; color: white; font-weight: bold; border-radius: 4px; cursor: pointer; margin-top: 5px; }
-        button:hover { background: #008f70; }
-        .btn-danger { background: #d9534f; }
-        .btn-danger:hover { background: #c9302c; }
-        .btn-warning { background: #f0ad4e; color: #333; }
-        .btn-warning:hover { background: #eea236; }
-        .row { display: flex; gap: 10px; }
-        .col { flex: 1; }
-        .atalhos-info { font-size: 12px; color: #aaa; margin-top: 5px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; background: #1e293b; padding: 25px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+        h1 { text-align: center; color: #38bdf8; margin-top: 0; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #334155; padding-bottom: 10px; }
+        .logout-btn { background: #ef4444; color: white; padding: 8px 15px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 14px; }
+        .logout-btn:hover { background: #dc2626; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .card-team { background: #0f172a; padding: 20px; border-radius: 8px; border: 1px solid #334155; }
+        h3 { margin-top: 0; color: #38bdf8; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-size: 14px; color: #cbd5e1; }
+        input[type="text"], select { width: 100%; padding: 10px; border: 1px solid #475569; border-radius: 6px; background: #1e293b; color: #fff; box-sizing: border-box; }
+        input[type="file"] { font-size: 13px; color: #cbd5e1; }
+        .btn-row { display: flex; gap: 10px; margin-top: 10px; }
+        button { flex: 1; padding: 10px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+        .btn-plus { background: #16a34a; color: white; }
+        .btn-plus:hover { background: #15803d; }
+        .btn-minus { background: #dc2626; color: white; }
+        .btn-minus:hover { background: #b91c1c; }
+        .cronometro-box, .extras-box { background: #0f172a; padding: 20px; border-radius: 8px; border: 1px solid #334155; margin-top: 20px; text-align: center; }
+        .btn-acao { background: #0284c7; color: white; padding: 12px 20px; font-size: 16px; margin: 5px; }
+        .btn-acao:hover { background: #0369a1; }
+        .preview-img { max-height: 40px; margin-top: 5px; display: block; }
     </style>
 </head>
 <body>
-    <h2>Painel de Controle Avançado do Placar</h2>
+    <div class="container">
+        <div class="top-bar">
+            <span>Painel Operacional - Natorcida</span>
+            <a href="/logout" class="logout-btn">Sair da Conta</a>
+        </div>
 
-    <div class="card">
-        <h3>⏱️ Cronômetro</h3>
-        <p style="font-size: 20px; font-weight: bold;" id="visor-cronometro">00:00</p>
-        <button onclick="controlarRelogio('iniciar')">Iniciar</button>
-        <button class="btn-warning" onclick="controlarRelogio('pausar')">Pausar</button>
-        <button class="btn-danger" onclick="controlarRelogio('zerar')">Zerar</button>
-    </div>
+        <h1>🎮 Painel de Controle do Placar</h1>
 
-    <div class="card">
-        <h3>⚽ Equipes e Placar <span class="atalhos-info">(Atalhos: [G] +Casa, [H] -Casa | [K] +Fora, [L] -Fora)</span></h3>
-        <div class="row">
-            <div class="col">
-                <label>Time Casa:</label>
-                <input type="text" id="time_casa">
-                <label>Gols Casa:</label>
-                <div class="row">
-                    <button class="btn-danger" onclick="mudarGol('gols_casa', -1)">-</button>
-                    <input type="number" id="gols_casa" style="text-align:center;">
-                    <button onclick="mudarGol('gols_casa', 1)">+</button>
+        <div class="grid">
+            <!-- Time da Casa -->
+            <div class="card-team">
+                <h3>Time da Casa</h3>
+                <div class="form-group">
+                    <label>Nome da Equipe</label>
+                    <input type="text" id="time_casa" oninput="atualizarCampo('time_casa', this.value)">
+                </div>
+                <div class="form-group">
+                    <label>Bandeira / Escudo</label>
+                    <input type="file" id="file_casa" accept="image/*" onchange="enviarBandeira('casa')">
+                    <img id="preview_casa" class="preview-img" src="" style="display:none;">
+                </div>
+                <div class="form-group">
+                    <label>Gols: <span id="txt_gols_casa" style="font-size: 24px; color: #38bdf8;">0</span></label>
+                    <div class="btn-row">
+                        <button class="btn-minus" onclick="mudarGols('casa', -1)">- Gol</button>
+                        <button class="btn-plus" onclick="mudarGols('casa', 1)">+ Gol</button>
+                    </div>
                 </div>
             </div>
-            <div class="col">
-                <label>Time Fora:</label>
-                <input type="text" id="time_fora">
-                <label>Gols Fora:</label>
-                <div class="row">
-                    <button class="btn-danger" onclick="mudarGol('gols_fora', -1)">-</button>
-                    <input type="number" id="gols_fora" style="text-align:center;">
-                    <button onclick="mudarGol('gols_fora', 1)">+</button>
+
+            <!-- Time de Fora -->
+            <div class="card-team">
+                <h3>Time de Fora</h3>
+                <div class="form-group">
+                    <label>Nome da Equipe</label>
+                    <input type="text" id="time_fora" oninput="atualizarCampo('time_fora', this.value)">
+                </div>
+                <div class="form-group">
+                    <label>Bandeira / Escudo</label>
+                    <input type="file" id="file_fora" accept="image/*" onchange="enviarBandeira('fora')">
+                    <img id="preview_fora" class="preview-img" src="" style="display:none;">
+                </div>
+                <div class="form-group">
+                    <label>Gols: <span id="txt_gols_fora" style="font-size: 24px; color: #38bdf8;">0</span></label>
+                    <div class="btn-row">
+                        <button class="btn-minus" onclick="mudarGols('fora', -1)">- Gol</button>
+                        <button class="btn-plus" onclick="mudarGols('fora', 1)">+ Gol</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cronômetro e Período -->
+        <div class="cronometro-box">
+            <h3>Controle de Tempo</h3>
+            <div class="form-group" style="max-width: 300px; margin: 0 auto 15px auto;">
+                <label>Período da Partida</label>
+                <select id="periodo" onchange="atualizarCampo('periodo', this.value)">
+                    <option value="1º TEMPO">1º TEMPO</option>
+                    <option value="INTERVALO">INTERVALO</option>
+                    <option value="2º TEMPO">2º TEMPO</option>
+                    <option value="PRORROGAÇÃO">PRORROGAÇÃO</option>
+                    <option value="ENCERRADO">ENCERRADO</option>
+                </select>
+            </div>
+            <div style="font-size: 28px; font-weight: bold; margin-bottom: 15px;" id="display_tempo">00:00</div>
+            <button class="btn-acao" id="btn_cronometro" onclick="toggleCronometro()">Iniciar / Pausar</button>
+            <button class="btn-acao" style="background: #64748b;" onclick="zerarCronometro()">Zerar Tempo</button>
+        </div>
+
+        <!-- Patrocinadores -->
+        <div class="extras-box">
+            <h3>Patrocinadores (Logotipo ou Texto)</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; text-align: left;">
+                <div class="form-group">
+                    <label>Adicionar por Logotipo (Imagem)</label>
+                    <input type="file" id="file_patrocinador" accept="image/*" onchange="enviarPatrocinador()">
+                </div>
+                <div class="form-group">
+                    <label>Adicionar por Nome (Texto)</label>
+                    <div style="display: flex; gap: 5px;">
+                        <input type="text" id="texto_patrocinador" placeholder="Ex: Auto Peças Silva">
+                        <button class="btn-plus" onclick="adicionarPatrocinadorTexto()" style="width: 80px; margin-top: 0;">Add</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="card">
-        <h3>⚙️ Configurações da Partida</h3>
-        <label>Período:</label>
-        <select id="periodo">
-            <option value="1º TEMPO">1º TEMPO</option>
-            <option value="INTERVALO">INTERVALO</option>
-            <option value="2º TEMPO">2º TEMPO</option>
-            <option value="PRORROGAÇÃO">PRORROGAÇÃO</option>
-            <option value="PÊNALTIS">PÊNALTIS</option>
-            <option value="FINAL">FINAL</option>
-        </select>
-
-        <label>Patrocinadores (separe por vírgula):</label>
-        <input type="text" id="patrocinadores_txt" placeholder="Marca A, Empresa B, Loja C">
-    </div>
-
-    <button style="width: 100%; padding: 15px; font-size: 16px;" onclick="salvarDados()">Salvar Alterações</button>
-
     <script>
-        // Carrega os dados do servidor APENAS quando a página é aberta
-        function carregarDadosIniciais() {
-            fetch('/api/estado').then(res => res.json()).then(data => {
-                document.getElementById('time_casa').value = data.time_casa || '';
-                document.getElementById('time_fora').value = data.time_fora || '';
-                document.getElementById('gols_casa').value = data.gols_casa ?? 0;
-                document.getElementById('gols_fora').value = data.gols_fora ?? 0;
-                document.getElementById('periodo').value = data.periodo || '1º TEMPO';
+        let estadoLocal = {};
 
-                if(data.patrocinadores) {
-                    document.getElementById('patrocinadores_txt').value = data.patrocinadores.join(', ');
-                }
-            });
+        function buscarEstado() {
+            fetch('/api/estado')
+                .then(res => res.json())
+                .then(data => {
+                    estadoLocal = data;
+                    document.getElementById('time_casa').value = data.time_casa;
+                    document.getElementById('time_fora').value = data.time_fora;
+                    document.getElementById('txt_gols_casa').innerText = data.gols_casa;
+                    document.getElementById('txt_gols_fora').innerText = data.gols_fora;
+                    document.getElementById('periodo').value = data.periodo;
+
+                    let mins = String(data.minutos).padStart(2, '0');
+                    let segs = String(data.segundos).padStart(2, '0');
+                    document.getElementById('display_tempo').innerText = `${mins}:${segs}`;
+
+                    if (data.bandeira_casa) {
+                        let img = document.getElementById('preview_casa');
+                        img.src = data.bandeira_casa;
+                        img.style.display = 'block';
+                    }
+                    if (data.bandeira_fora) {
+                        let img = document.getElementById('preview_fora');
+                        img.src = data.bandeira_fora;
+                        img.style.display = 'block';
+                    }
+                });
         }
 
-        // Atualiza apenas o cronômetro na tela para não apagar o que você está digitando
-        function atualizarApenasRelogio() {
-            fetch('/api/estado').then(res => res.json()).then(data => {
-                let min = String(data.minutos).padStart(2, '0');
-                let seg = String(data.segundos).padStart(2, '0');
-                document.getElementById('visor-cronometro').innerText = min + ":" + seg;
-            });
-        }
-
-        function salvarDados() {
-            let textoPatrocinadores = document.getElementById('patrocinadores_txt').value;
-            let pats = textoPatrocinadores.split(',').map(s => s.trim()).filter(s => s.length > 0);
-
-            let dados = {
-                time_casa: document.getElementById('time_casa').value,
-                time_fora: document.getElementById('time_fora').value,
-                gols_casa: parseInt(document.getElementById('gols_casa').value) || 0,
-                gols_fora: parseInt(document.getElementById('gols_fora').value) || 0,
-                periodo: document.getElementById('periodo').value,
-                patrocinadores: pats
-            };
-
+        function enviarDados(payload) {
             fetch('/api/atualizar', {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(dados)
-            }).then(res => res.json()).then(data => {
-
-            });
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            }).then(res => res.json()).then(data => buscarEstado());
         }
 
-        function mudarGol(campo, valor) {
-            let input = document.getElementById(campo);
-            let atual = parseInt(input.value) || 0;
-            let novo = atual + valor;
-            if (novo < 0) novo = 0;
-            input.value = novo;
-            salvarDados();
+        function atualizarCampo(campo, valor) {
+            let payload = {};
+            payload[campo] = valor;
+            enviarDados(payload);
         }
 
-        function controlarRelogio(acao) {
-            let dados = {};
-            if (acao === 'iniciar') dados.cronometro_rodando = true;
-            if (acao === 'pausar') dados.cronometro_rodando = false;
-            if (acao === 'zerar') {
-                dados.cronometro_rodando = false;
-                dados.minutos = 0;
-                dados.segundos = 0;
+        function mudarGols(time, valor) {
+            if (time === 'casa') {
+                let novo = estadoLocal.gols_casa + valor;
+                if (novo >= 0) atualizarCampo('gols_casa', novo);
+            } else {
+                let novo = estadoLocal.gols_fora + valor;
+                if (novo >= 0) atualizarCampo('gols_fora', novo);
             }
-
-            fetch('/api/atualizar', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(dados)
-            }).then(() => atualizarApenasRelogio());
         }
 
-        // Atalhos de teclado globais no painel
-        document.addEventListener('keydown', (e) => {
-            if (document.activeElement.tagName === 'INPUT') return;
+        function toggleCronometro() {
+            let rodando = !estadoLocal.cronometro_rodando;
+            enviarDados({ cronometro_rodando: rodando });
+        }
 
-            if (e.key.toLowerCase() === 'g') mudarGol('gols_casa', 1);
-            if (e.key.toLowerCase() === 'h') mudarGol('gols_casa', -1);
-            if (e.key.toLowerCase() === 'k') mudarGol('gols_fora', 1);
-            if (e.key.toLowerCase() === 'l') mudarGol('gols_fora', -1);
-        });
+        function zerarCronometro() {
+            enviarDados({ minutos: 0, segundos: 0, cronometro_rodando: false });
+        }
 
-        // Inicialização
-        carregarDadosIniciais();
-        // Atualiza o relógio a cada 1 segundo em segundo plano
-        setInterval(atualizarApenasRelogio, 1000);
+        function enviarBandeira(time) {
+            let input = document.getElementById(time === 'casa' ? 'file_casa' : 'file_fora');
+            if (input.files.length === 0) return;
+
+            let formData = new FormData();
+            formData.append('file', input.files[0]);
+            formData.append('tipo', 'bandeira_' + time);
+
+            fetch('/api/upload', { method: 'POST', body: formData })
+                .then(res => res.json())
+                .then(data => { buscarEstado(); });
+        }
+
+        function enviarPatrocinador() {
+            let input = document.getElementById('file_patrocinador');
+            if (input.files.length === 0) return;
+
+            let formData = new FormData();
+            formData.append('file', input.files[0]);
+            formData.append('tipo', 'patrocinador');
+
+            fetch('/api/upload', { method: 'POST', body: formData })
+                .then(res => res.json())
+                .then(data => {
+                    alert('Logotipo do patrocinador enviado com sucesso!');
+                    input.value = '';
+                });
+        }
+
+        function adicionarPatrocinadorTexto() {
+            let input = document.getElementById('texto_patrocinador');
+            let nome = input.value.trim();
+            if (!nome) return;
+
+            fetch('/api/adicionar_patrocinador_texto', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nome: nome })
+            })
+            .then(res => res.json())
+            .then(data => {
+                alert('Patrocinador em texto adicionado!');
+                input.value = '';
+            });
+        }
+
+        setInterval(buscarEstado, 1000);
+        buscarEstado();
     </script>
 </body>
 </html>
